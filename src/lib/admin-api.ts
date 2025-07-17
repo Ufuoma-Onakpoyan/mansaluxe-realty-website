@@ -74,7 +74,7 @@ class AdminAPI {
   private baseUrl = '/data'; // TODO: Replace with actual API base URL
 
   // Authentication methods - placeholder
-  async login(email: string, password: string): Promise<{ token: string; user: User; requiresTwoFactor?: boolean }> {
+  async login(email: string, password: string): Promise<{ token: string; user: User }> {
     // TODO: Implement real authentication
     console.log('Login attempt:', email, password);
     
@@ -94,8 +94,7 @@ class AdminAPI {
         department: 'Management',
         joinDate: '2023-01-01',
         lastLogin: new Date().toISOString(),
-        twoFactorEnabled: true,
-        twoFactorVerified: false,
+        twoFactorEnabled: false,
         phoneNumber: '+2348012345678',
         position: 'Managing Director',
         bio: 'Experienced real estate professional with over 10 years in luxury properties.',
@@ -103,8 +102,7 @@ class AdminAPI {
         totalSales: 24,
         totalRevenue: 450000000,
         permissions: ['full_access', 'user_management', 'property_management', 'testimonial_management', 'settings']
-      },
-      requiresTwoFactor: true
+      }
     };
   }
 
@@ -117,47 +115,6 @@ class AdminAPI {
   async verifyToken(token: string): Promise<boolean> {
     // TODO: Implement real token verification
     return token && token.startsWith('mock-jwt-token');
-  }
-  
-  async requestTwoFactorCode(userId: number, method: 'sms' | 'email'): Promise<boolean> {
-    // TODO: Replace with real API call to send a verification code
-    console.log(`Sending 2FA code to user ${userId} via ${method}`);
-    return true;
-  }
-  
-  async verifyTwoFactorCode(userId: number, code: string): Promise<{ token: string }> {
-    // TODO: Replace with real API call to verify a 2FA code
-    console.log(`Verifying 2FA code for user ${userId}: ${code}`);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock successful verification (any code works in dev)
-    if (code) {
-      return { token: 'mock-jwt-token-2fa-verified-' + Date.now() };
-    } else {
-      throw new Error('Invalid verification code');
-    }
-  }
-  
-  async resetPassword(email: string): Promise<boolean> {
-    // TODO: Replace with real API call to request a password reset
-    console.log(`Password reset requested for: ${email}`);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return true;
-  }
-  
-  async confirmPasswordReset(token: string, newPassword: string): Promise<boolean> {
-    // TODO: Replace with real API call to set a new password
-    console.log(`Confirming password reset with token: ${token}`);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return true;
   }
 
   // Dashboard methods
