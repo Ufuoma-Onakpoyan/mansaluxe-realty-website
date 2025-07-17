@@ -28,9 +28,14 @@ export default function Properties() {
     bathrooms: 0,
     area: '',
     type: '',
-    status: 'Available',
+    status: 'Available' as 'Available' | 'Under Contract' | 'Sold' | 'Off Market',
     featured: false,
-    images: ['']
+    images: [''],
+    amenities: [],
+    features: [],
+    virtualTourUrl: '',
+    videoUrl: '',
+    floorPlanImages: []
   });
 
   useEffect(() => {
@@ -63,9 +68,14 @@ export default function Properties() {
       bathrooms: 0,
       area: '',
       type: '',
-      status: 'Available',
+      status: 'Available' as 'Available' | 'Under Contract' | 'Sold' | 'Off Market',
       featured: false,
-      images: ['']
+      images: [''],
+      amenities: [],
+      features: [],
+      virtualTourUrl: '',
+      videoUrl: '',
+      floorPlanImages: []
     });
     setEditingProperty(null);
   };
@@ -84,7 +94,12 @@ export default function Properties() {
         type: property.type,
         status: property.status,
         featured: property.featured,
-        images: property.images.length > 0 ? property.images : ['']
+        images: property.images.length > 0 ? property.images : [''],
+        amenities: property.amenities || [],
+        features: property.features || [],
+        virtualTourUrl: property.virtualTourUrl || '',
+        videoUrl: property.videoUrl || '',
+        floorPlanImages: property.floorPlanImages || []
       });
     } else {
       resetForm();
@@ -297,14 +312,20 @@ export default function Properties() {
                 
                 <div>
                   <Label htmlFor="status">Status</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
+                  <Select 
+                    value={formData.status} 
+                    onValueChange={(value: 'Available' | 'Under Contract' | 'Sold' | 'Off Market') => 
+                      setFormData({ ...formData, status: value })
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Available">Available</SelectItem>
+                      <SelectItem value="Under Contract">Under Contract</SelectItem>
                       <SelectItem value="Sold">Sold</SelectItem>
-                      <SelectItem value="Pending">Pending</SelectItem>
+                      <SelectItem value="Off Market">Off Market</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
