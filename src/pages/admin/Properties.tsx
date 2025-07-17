@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { adminAPI, Property } from '@/lib/admin-api';
+import { propertiesService, Property } from '@/lib/properties-service';
 import { Plus, Edit, Trash2, Building2, MapPin, Bed, Bath, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -28,14 +28,14 @@ export default function Properties() {
     bathrooms: 0,
     area: '',
     type: '',
-    status: 'Available' as 'Available' | 'Under Contract' | 'Sold' | 'Off Market',
+    status: 'available' as 'available' | 'sold' | 'pending',
     featured: false,
     images: [''],
-    amenities: [],
-    features: [],
+    amenities: [] as string[],
+    features: [] as string[],
     virtualTourUrl: '',
     videoUrl: '',
-    floorPlanImages: []
+    floorPlanImages: [] as string[]
   });
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function Properties() {
 
   const loadProperties = async () => {
     try {
-      const data = await adminAPI.getProperties();
+      const data = await propertiesService.getProperties();
       setProperties(data);
     } catch (error) {
       console.error('Failed to load properties:', error);
@@ -68,14 +68,14 @@ export default function Properties() {
       bathrooms: 0,
       area: '',
       type: '',
-      status: 'Available' as 'Available' | 'Under Contract' | 'Sold' | 'Off Market',
+      status: 'available' as 'available' | 'sold' | 'pending',
       featured: false,
       images: [''],
-      amenities: [],
-      features: [],
+      amenities: [] as string[],
+      features: [] as string[],
       virtualTourUrl: '',
       videoUrl: '',
-      floorPlanImages: []
+      floorPlanImages: [] as string[]
     });
     setEditingProperty(null);
   };
@@ -85,15 +85,15 @@ export default function Properties() {
       setEditingProperty(property);
       setFormData({
         title: property.title,
-        description: property.description,
-        price: property.price,
+        description: property.description || '',
+        price: property.price.toString(),
         location: property.location,
-        bedrooms: property.bedrooms,
-        bathrooms: property.bathrooms,
-        area: property.area,
-        type: property.type,
+        bedrooms: property.bedrooms || 0,
+        bathrooms: property.bathrooms || 0,
+        area: property.area || '',
+        type: property.type || '',
         status: property.status,
-        featured: property.featured,
+        featured: property.featured || false,
         images: property.images.length > 0 ? property.images : [''],
         amenities: property.amenities || [],
         features: property.features || [],
@@ -117,15 +117,13 @@ export default function Properties() {
       };
 
       if (editingProperty) {
-        // TODO: Replace with real API call
-        await adminAPI.updateProperty(editingProperty.id, propertyData);
+        await propertiesService.updateProperty(editingProperty.id, propertyData);
         toast({
           title: "Success",
           description: "Property updated successfully",
         });
       } else {
-        // TODO: Replace with real API call
-        await adminAPI.createProperty(propertyData);
+        await propertiesService.createProperty(propertyData);
         toast({
           title: "Success",
           description: "Property created successfully",
@@ -145,12 +143,11 @@ export default function Properties() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this property?')) return;
 
     try {
-      // TODO: Replace with real API call
-      await adminAPI.deleteProperty(id);
+      await propertiesService.deleteProperty(id);
       toast({
         title: "Success",
         description: "Property deleted successfully",
@@ -314,7 +311,7 @@ export default function Properties() {
                   <Label htmlFor="status">Status</Label>
                   <Select 
                     value={formData.status} 
-                    onValueChange={(value: 'Available' | 'Under Contract' | 'Sold' | 'Off Market') => 
+                    onValueChange={(value: 'available' | 'sold' | 'pending') => 
                       setFormData({ ...formData, status: value })
                     }
                   >
@@ -322,10 +319,9 @@ export default function Properties() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Available">Available</SelectItem>
-                      <SelectItem value="Under Contract">Under Contract</SelectItem>
-                      <SelectItem value="Sold">Sold</SelectItem>
-                      <SelectItem value="Off Market">Off Market</SelectItem>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="pending">Under Contract</SelectItem>
+                      <SelectItem value="sold">Sold</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -401,9 +397,9 @@ export default function Properties() {
               
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-bold text-lg text-primary">{property.price}</p>
-                  <Badge variant={property.status === 'Available' ? 'default' : property.status === 'Sold' ? 'secondary' : 'outline'}>
-                    {property.status}
+                  <p className="font-bold text-lg text-primary">₦{property.price.toLocaleString()}</p>
+                  <Badge variant={property.status === 'available' ? 'default' : property.status === 'sold' ? 'secondary' : 'outline'}>
+                    {property.status === 'available' ? 'Available' : property.status === 'sold' ? 'Sold' : 'Under Contract'}
                   </Badge>
                 </div>
                 

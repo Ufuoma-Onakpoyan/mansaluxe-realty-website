@@ -14,7 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      properties: {
+        Row: {
+          agent: Json | null
+          amenities: string[] | null
+          bathrooms: number | null
+          bedrooms: number | null
+          created_at: string
+          description: string | null
+          features: string[] | null
+          id: string
+          images: string[] | null
+          location: string
+          lot_size: string | null
+          price: number
+          property_type: string | null
+          square_feet: number | null
+          status: string
+          title: string
+          updated_at: string
+          year_built: number | null
+        }
+        Insert: {
+          agent?: Json | null
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          location: string
+          lot_size?: string | null
+          price: number
+          property_type?: string | null
+          square_feet?: number | null
+          status?: string
+          title: string
+          updated_at?: string
+          year_built?: number | null
+        }
+        Update: {
+          agent?: Json | null
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          created_at?: string
+          description?: string | null
+          features?: string[] | null
+          id?: string
+          images?: string[] | null
+          location?: string
+          lot_size?: string | null
+          price?: number
+          property_type?: string | null
+          square_feet?: number | null
+          status?: string
+          title?: string
+          updated_at?: string
+          year_built?: number | null
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          company: string | null
+          created_at: string
+          id: string
+          name: string
+          photo: string | null
+          property_id: string | null
+          quote: string
+          rating: number | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          photo?: string | null
+          property_id?: string | null
+          quote: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          photo?: string | null
+          property_id?: string | null
+          quote?: string
+          rating?: number | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "testimonials_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
