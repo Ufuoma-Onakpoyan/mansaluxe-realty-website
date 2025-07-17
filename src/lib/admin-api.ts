@@ -44,7 +44,7 @@ interface User {
   id: number;
   name: string;
   email: string;
-  role: 'Admin' | 'Agent' | 'Staff';
+  role: 'Admin';
   status: 'Active' | 'Inactive' | 'Suspended';
   avatar: string;
   department: string;
@@ -65,7 +65,7 @@ interface DashboardStats {
   totalProperties: number;
   pendingInquiries: number;
   totalTestimonials: number;
-  adminUsers: number;
+  adminUser: number;
   propertiesSold: number;
   monthlyRevenue: string;
 }
@@ -128,7 +128,7 @@ class AdminAPI {
       totalProperties: properties.length,
       pendingInquiries: 12, // Mock data
       totalTestimonials: testimonials.length,
-      adminUsers: users.filter(u => u.status === 'Active').length,
+      adminUser: users.filter(u => u.status === 'Active').length,
       propertiesSold: properties.filter(p => p.status === 'Sold').length,
       monthlyRevenue: '₦2.1B'
     };

@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { propertiesService, Property } from '@/lib/properties-service';
-import { Plus, Edit, Trash2, Building2, MapPin, Bed, Bath, Square } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Plus, Edit, Trash2, Building2, MapPin, Bed, Bath, Square, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Properties() {
@@ -16,6 +17,8 @@ export default function Properties() {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   // Form state
@@ -78,6 +81,7 @@ export default function Properties() {
       floorPlanImages: [] as string[]
     });
     setEditingProperty(null);
+    setUploadedImages([]);
   };
 
   const openModal = (property?: Property) => {
@@ -101,10 +105,62 @@ export default function Properties() {
         videoUrl: property.videoUrl || '',
         floorPlanImages: property.floorPlanImages || []
       });
+      setUploadedImages(property.images || []);
     } else {
       resetForm();
     }
     setIsModalOpen(true);
+  };
+
+  const handleImageUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    const newImages: string[] = [];
+
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+
+        const { data, error } = await supabase.storage
+          .from('property-images')
+          .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('property-images')
+          .getPublicUrl(fileName);
+
+        newImages.push(publicUrl);
+      }
+
+      const updatedImages = [...uploadedImages, ...newImages];
+      setUploadedImages(updatedImages);
+      setFormData({ ...formData, images: updatedImages });
+
+      toast({
+        title: "Success",
+        description: `${newImages.length} image(s) uploaded successfully`,
+      });
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload images",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const updatedImages = uploadedImages.filter((_, i) => i !== index);
+    setUploadedImages(updatedImages);
+    setFormData({ ...formData, images: updatedImages });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,7 +169,7 @@ export default function Properties() {
     try {
       const propertyData = {
         ...formData,
-        images: formData.images.filter(img => img.trim() !== '')
+        images: uploadedImages.filter(img => img.trim() !== '')
       };
 
       if (editingProperty) {
@@ -326,6 +382,56 @@ export default function Properties() {
                   </Select>
                 </div>
                 
+                <div className="col-span-2">
+                  <Label>Property Images</Label>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center w-full">
+                      <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+                          <p className="mb-2 text-sm text-muted-foreground">
+                            <span className="font-semibold">Click to upload</span> property images
+                          </p>
+                          <p className="text-xs text-muted-foreground">PNG, JPG, WebP up to 50MB each</p>
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          multiple
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e.target.files)}
+                          disabled={isUploading}
+                        />
+                      </label>
+                    </div>
+                    
+                    {uploadedImages.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={image}
+                              alt={`Property ${index + 1}`}
+                              className="w-full h-24 object-cover rounded-lg border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeImage(index)}
+                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {isUploading && (
+                      <p className="text-sm text-muted-foreground">Uploading images...</p>
+                    )}
+                  </div>
+                </div>
+                
                 <div className="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -342,7 +448,7 @@ export default function Properties() {
                 <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" disabled={isUploading}>
                   {editingProperty ? 'Update Property' : 'Create Property'}
                 </Button>
               </div>
@@ -356,7 +462,15 @@ export default function Properties() {
         {properties.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video bg-muted flex items-center justify-center">
-              <Building2 className="h-12 w-12 text-muted-foreground" />
+              {property.images && property.images.length > 0 ? (
+                <img 
+                  src={property.images[0]} 
+                  alt={property.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <Building2 className="h-12 w-12 text-muted-foreground" />
+              )}
             </div>
             
             <CardContent className="p-4">

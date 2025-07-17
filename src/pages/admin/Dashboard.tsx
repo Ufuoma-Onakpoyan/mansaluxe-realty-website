@@ -83,10 +83,10 @@ export default function Dashboard() {
       color: 'text-purple-500'
     },
     {
-      title: 'Admin Users',
-      value: stats.adminUsers,
+      title: 'Admin',
+      value: stats.adminUser,
       icon: Users,
-      description: 'Active staff',
+      description: 'Active admin',
       color: 'text-indigo-500'
     },
     {
