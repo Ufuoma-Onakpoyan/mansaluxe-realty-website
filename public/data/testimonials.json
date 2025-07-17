@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Adebayo Okafor",
+    "role": "Surgeon",
+    "company": "Lagos University Teaching Hospital",
+    "photo": "/placeholder.svg",
+    "quote": "MansaLuxeRealty exceeded all expectations. Their professionalism and attention to detail made finding my dream home effortless. The team understood exactly what I was looking for and delivered beyond my imagination.",
+    "rating": 5,
+    "property": "Luxury Penthouse Victoria Island",
+    "createdAt": "2024-01-10"
+  },
+  {
+    "id": 2,
+    "name": "Mrs. Kemi Adeleke",
+    "role": "CEO",
+    "company": "Adeleke Enterprises",
+    "photo": "/placeholder.svg",
+    "quote": "The level of service at MansaLuxeRealty is unmatched. From the initial consultation to the final handover, every step was handled with utmost care and professionalism. I highly recommend them to anyone seeking luxury properties.",
+    "rating": 5,
+    "property": "Modern Villa Lekki Phase 1",
+    "createdAt": "2024-01-08"
+  },
+  {
+    "id": 3,
+    "name": "Chief Emmanuel Okoro",
+    "role": "Business Mogul",
+    "company": "Okoro Group",
+    "photo": "/placeholder.svg",
+    "quote": "Exceptional service and remarkable properties. MansaLuxeRealty has a keen eye for luxury and understands the needs of discerning clients. My Banana Island mansion is everything I dreamed of and more.",
+    "rating": 5,
+    "property": "Waterfront Mansion Banana Island",
+    "createdAt": "2024-01-15"
+  },
+  {
+    "id": 4,
+    "name": "Ambassador Sarah Johnson",
+    "role": "Diplomat",
+    "company": "British High Commission",
+    "photo": "/placeholder.svg",
+    "quote": "As a diplomat, I have high standards for quality and service. MansaLuxeRealty met and exceeded every expectation. Their portfolio of premium properties and white-glove service is truly world-class.",
+    "rating": 5,
+    "property": "Executive Duplex Ikoyi",
+    "createdAt": "2024-01-12"
+  },
+  {
+    "id": 5,
+    "name": "Mr. Olumide Fashola",
+    "role": "Tech Entrepreneur",
+    "company": "TechHub Lagos",
+    "photo": "/placeholder.svg",
+    "quote": "Modern, efficient, and incredibly professional. MansaLuxeRealty uses technology and personal touch to create an outstanding client experience. My Eko Atlantic apartment purchase was seamless from start to finish.",
+    "rating": 5,
+    "property": "Luxury Apartment Eko Atlantic",
+    "createdAt": "2024-01-20"
+  }
+]

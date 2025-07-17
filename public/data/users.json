@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Admin User",
+    "email": "admin@mansaluxerealty.com",
+    "role": "Super Admin",
+    "status": "Active",
+    "avatar": "/placeholder.svg",
+    "department": "Management",
+    "joinDate": "2023-01-01",
+    "lastLogin": "2024-01-22T10:30:00Z",
+    "permissions": ["full_access", "user_management", "property_management", "testimonial_management", "settings"]
+  },
+  {
+    "id": 2,
+    "name": "Chioma Okonkwo",
+    "email": "chioma@mansaluxerealty.com",
+    "role": "Property Manager",
+    "status": "Active",
+    "avatar": "/placeholder.svg",
+    "department": "Property Management",
+    "joinDate": "2023-03-15",
+    "lastLogin": "2024-01-22T09:15:00Z",
+    "permissions": ["property_management", "testimonial_management"]
+  },
+  {
+    "id": 3,
+    "name": "Biodun Adeyemi",
+    "email": "biodun@mansaluxerealty.com",
+    "role": "Sales Manager",
+    "status": "Active",
+    "avatar": "/placeholder.svg",
+    "department": "Sales",
+    "joinDate": "2023-05-20",
+    "lastLogin": "2024-01-21T16:45:00Z",
+    "permissions": ["property_management", "client_management"]
+  },
+  {
+    "id": 4,
+    "name": "Funmi Olatunji",
+    "email": "funmi@mansaluxerealty.com",
+    "role": "Marketing Coordinator",
+    "status": "Active",
+    "avatar": "/placeholder.svg",
+    "department": "Marketing",
+    "joinDate": "2023-07-10",
+    "lastLogin": "2024-01-22T08:30:00Z",
+    "permissions": ["testimonial_management", "content_management"]
+  },
+  {
+    "id": 5,
+    "name": "Tunde Bakare",
+    "email": "tunde@mansaluxerealty.com",
+    "role": "Assistant Manager",
+    "status": "Inactive",
+    "avatar": "/placeholder.svg",
+    "department": "Operations",
+    "joinDate": "2023-09-01",
+    "lastLogin": "2024-01-15T14:20:00Z",
+    "permissions": ["property_management"]
+  }
+]

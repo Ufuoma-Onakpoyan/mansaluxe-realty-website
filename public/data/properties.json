@@ -1,0 +1,99 @@
+[
+  {
+    "id": 1,
+    "title": "Luxury Penthouse Victoria Island",
+    "description": "Stunning 4-bedroom penthouse with panoramic views of Lagos lagoon. Premium finishes throughout.",
+    "price": "₦850,000,000",
+    "location": "Victoria Island, Lagos",
+    "bedrooms": 4,
+    "bathrooms": 5,
+    "area": "350 sqm",
+    "type": "Penthouse",
+    "status": "Available",
+    "featured": true,
+    "images": [
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg"
+    ],
+    "createdAt": "2024-01-15",
+    "updatedAt": "2024-01-15"
+  },
+  {
+    "id": 2,
+    "title": "Modern Villa Lekki Phase 1",
+    "description": "Contemporary 5-bedroom villa with smart home features and private pool in gated community.",
+    "price": "₦420,000,000",
+    "location": "Lekki Phase 1, Lagos",
+    "bedrooms": 5,
+    "bathrooms": 6,
+    "area": "450 sqm",
+    "type": "Villa",
+    "status": "Available",
+    "featured": true,
+    "images": [
+      "/placeholder.svg",
+      "/placeholder.svg"
+    ],
+    "createdAt": "2024-01-10",
+    "updatedAt": "2024-01-12"
+  },
+  {
+    "id": 3,
+    "title": "Executive Duplex Ikoyi",
+    "description": "Elegant 4-bedroom duplex in prestigious Ikoyi neighborhood with garden and 2-car garage.",
+    "price": "₦320,000,000",
+    "location": "Ikoyi, Lagos",
+    "bedrooms": 4,
+    "bathrooms": 4,
+    "area": "280 sqm",
+    "type": "Duplex",
+    "status": "Sold",
+    "featured": false,
+    "images": [
+      "/placeholder.svg"
+    ],
+    "createdAt": "2024-01-05",
+    "updatedAt": "2024-01-20"
+  },
+  {
+    "id": 4,
+    "title": "Waterfront Mansion Banana Island",
+    "description": "Exclusive 6-bedroom mansion with private jetty and helipad. Ultimate luxury living.",
+    "price": "₦1,200,000,000",
+    "location": "Banana Island, Lagos",
+    "bedrooms": 6,
+    "bathrooms": 8,
+    "area": "800 sqm",
+    "type": "Mansion",
+    "status": "Available",
+    "featured": true,
+    "images": [
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg",
+      "/placeholder.svg"
+    ],
+    "createdAt": "2024-01-20",
+    "updatedAt": "2024-01-20"
+  },
+  {
+    "id": 5,
+    "title": "Luxury Apartment Eko Atlantic",
+    "description": "Modern 3-bedroom apartment with city views in prestigious Eko Atlantic development.",
+    "price": "₦280,000,000",
+    "location": "Eko Atlantic, Lagos",
+    "bedrooms": 3,
+    "bathrooms": 3,
+    "area": "180 sqm",
+    "type": "Apartment",
+    "status": "Available",
+    "featured": false,
+    "images": [
+      "/placeholder.svg",
+      "/placeholder.svg"
+    ],
+    "createdAt": "2024-01-18",
+    "updatedAt": "2024-01-18"
+  }
+]
