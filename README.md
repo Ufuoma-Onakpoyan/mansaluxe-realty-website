@@ -1,73 +1,194 @@
-# Welcome to your Lovable project
+# MansaLuxeRealty Admin Panel
 
-## Project info
+A luxury Nigerian realty company admin panel built with React, TypeScript, and Tailwind CSS.
 
-**URL**: https://lovable.dev/projects/82cba115-488f-464d-b597-f264450dec2c
+## 🏛️ Overview
 
-## How can I edit this code?
+MansaLuxeRealty is a subsidiary of MrDGNGroup, specializing in luxury real estate in Nigeria. This admin panel provides comprehensive management capabilities for properties, testimonials, users, and system settings.
 
-There are several ways of editing your application.
+## ✨ Features
 
-**Use Lovable**
+- **🔐 Authentication System**: Secure login/logout with route protection
+- **📊 Dashboard**: Real-time overview of business metrics and key statistics
+- **🏠 Properties Management**: Complete CRUD operations for luxury property listings
+- **💬 Testimonials Management**: Client reviews and testimonials administration
+- **👥 Users Management**: Admin user accounts, roles, and permissions
+- **⚙️ Settings**: Company configuration and theme customization
+- **📱 Responsive Design**: Optimized for desktop, tablet, and mobile devices
+- **🎨 Luxury Branding**: Elegant gold and black design with premium typography
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/82cba115-488f-464d-b597-f264450dec2c) and start prompting.
+## 🛠️ Technology Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend**: React 18 with TypeScript
+- **Styling**: Tailwind CSS with custom luxury design system
+- **UI Components**: Shadcn/ui component library
+- **Routing**: React Router v6 with protected routes
+- **State Management**: React Context API for authentication
+- **Icons**: Lucide React icon library
+- **Build Tool**: Vite for fast development and optimized builds
+- **Fonts**: Playfair Display (serif headings) + Inter (sans-serif body)
 
-**Use your preferred IDE**
+## 🚀 Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Prerequisites
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- Node.js 16 or higher
+- npm, yarn, or bun package manager
 
-Follow these steps:
+### Installation & Setup
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. **Install dependencies:**
+```bash
+npm install
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+2. **Start development server:**
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+3. **Access the application:**
+   - Public site: `http://localhost:5173/`
+   - Admin login: `http://localhost:5173/admin/login`
+   - Admin dashboard: `http://localhost:5173/admin/dashboard` (after authentication)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🔑 Admin Panel Access
 
-**Use GitHub Codespaces**
+### Development Login
+- Navigate to `/admin/login`
+- **Username**: Any email address (placeholder auth)
+- **Password**: Any password (placeholder auth)
+- Successfully logs in and redirects to dashboard
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 📁 Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/
+│   ├── admin/                 # Admin-specific components
+│   │   ├── AdminLayout.tsx    # Main admin layout wrapper
+│   │   ├── AdminNavbar.tsx    # Admin navigation header
+│   │   ├── AdminFooter.tsx    # Admin footer component  
+│   │   └── ProtectedRoute.tsx # Route authentication guard
+│   └── ui/                    # Reusable UI components
+├── contexts/
+│   └── AuthContext.tsx        # Authentication context provider
+├── lib/
+│   └── admin-api.ts          # API layer with mock functions
+├── pages/
+│   └── admin/                # Admin page components
+│       ├── Login.tsx         # Authentication page
+│       ├── Dashboard.tsx     # Main dashboard
+│       ├── Properties.tsx    # Property management
+│       ├── Testimonials.tsx  # Testimonial management
+│       ├── Users.tsx         # User management
+│       └── Settings.tsx      # System settings
+└── hooks/                    # Custom React hooks
 
-This project is built with:
+public/
+└── data/                     # Mock data files
+    ├── properties.json       # Property listings data
+    ├── testimonials.json     # Client testimonials data
+    └── users.json           # Admin users data
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🎨 Design System
 
-## How can I deploy this project?
+### Color Palette
+```css
+/* Primary Colors */
+--primary: 45 100% 51%;        /* #D4AF37 - Luxury Gold */
+--background: 0 0% 0%;         /* #000000 - Pure Black */
+--foreground: 0 0% 100%;       /* #FFFFFF - Pure White */
 
-Simply open [Lovable](https://lovable.dev/projects/82cba115-488f-464d-b597-f264450dec2c) and click on Share -> Publish.
+/* Secondary Colors */
+--card: 0 0% 5%;              /* Very Dark Gray */
+--muted: 0 0% 15%;            /* Muted Dark */
+--border: 0 0% 20%;           /* Dark Borders */
+```
 
-## Can I connect a custom domain to my Lovable project?
+### Typography
+- **Headings**: Playfair Display (elegant serif)
+- **Body Text**: Inter (clean sans-serif)
 
-Yes, you can!
+## 🔌 Backend Integration Guide
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Current Implementation
+The admin panel currently uses:
+- **Local JSON files** in `/public/data/` for mock data
+- **Placeholder API functions** in `/src/lib/admin-api.ts`
+- **localStorage** for mock authentication tokens
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Connecting to Real Backend
+
+#### 1. Update API Configuration
+```typescript
+// In src/lib/admin-api.ts
+class AdminAPI {
+  private baseUrl = 'https://your-api-domain.com/api'; // Update this
+  
+  private async request(endpoint: string, options: RequestInit = {}) {
+    const token = localStorage.getItem('admin_token');
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    
+    const response = await fetch(`${this.baseUrl}/${endpoint}`, {
+      ...options,
+      headers,
+    });
+    
+    return response.json();
+  }
+}
+```
+
+#### 2. Authentication Integration
+Replace placeholder auth with real JWT authentication:
+
+```typescript
+async login(email: string, password: string) {
+  const response = await fetch(`${this.baseUrl}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  
+  const data = await response.json();
+  localStorage.setItem('admin_token', data.token);
+  return data;
+}
+```
+
+## 🚀 Deployment Guide
+
+### Build for Production
+```bash
+npm run build
+npm run preview  # Test production build locally
+```
+
+### Deployment Options
+Deploy to any static hosting service:
+- **Vercel**: `vercel --prod`
+- **Netlify**: Connect Git repository
+- **AWS S3 + CloudFront**: Upload dist/ folder
+
+## 🛠️ Development Guidelines
+
+### Adding New Admin Features
+
+1. **Create page component** in `src/pages/admin/`
+2. **Add route** in `src/App.tsx`
+3. **Update navigation** in `src/components/admin/AdminNavbar.tsx`
+4. **Implement API functions** in `src/lib/admin-api.ts`
+
+## 📄 License
+
+This project is developed for MansaLuxeRealty, a subsidiary of MrDGNGroup. All rights reserved.
+
+---
+
+**Built with ❤️ for MansaLuxeRealty - Luxury Real Estate Excellence**
