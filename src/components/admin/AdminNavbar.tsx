@@ -13,10 +13,8 @@ import {
 } from 'lucide-react';
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
   { name: 'Properties', href: '/admin/properties', icon: Building2 },
   { name: 'Testimonials', href: '/admin/testimonials', icon: MessageSquareText },
-  { name: 'Users', href: '/admin/users', icon: Users },
   { name: 'Settings', href: '/admin/settings', icon: Settings },
 ];
 
@@ -38,7 +36,7 @@ export function AdminNavbar() {
         <div className="flex justify-between h-16">
           {/* Logo and Brand */}
           <div className="flex items-center">
-            <Link to="/admin/dashboard" className="flex items-center space-x-2">
+            <Link to="/admin/properties" className="flex items-center space-x-2">
               <Crown className="h-8 w-8 text-primary-foreground" />
               <div className="flex flex-col">
                 <span className="font-serif text-xl font-bold text-primary-foreground">
