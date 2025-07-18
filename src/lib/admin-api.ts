@@ -75,13 +75,17 @@ class AdminAPI {
 
   // Authentication methods - placeholder
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
-    // TODO: Implement real authentication
     console.log('Login attempt:', email, password);
+    
+    // Check specific credentials
+    if (email !== 'onakpoyanufuoma@gmail.com' || password !== 'MRDGN123!@#') {
+      throw new Error('Invalid email or password');
+    }
     
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Mock successful login
+    // Successful login with specific credentials
     return {
       token: 'mock-jwt-token-' + Date.now(),
       user: {
@@ -119,18 +123,25 @@ class AdminAPI {
 
   // Dashboard methods
   async getDashboardStats(): Promise<DashboardStats> {
-    // TODO: Replace with real API call
     const properties = await this.getProperties();
     const testimonials = await this.getTestimonials();
-    const users = await this.getUsers();
+
+    // Calculate real revenue from sold properties
+    const soldProperties = properties.filter(p => p.status === 'Sold');
+    const totalRevenue = soldProperties.reduce((sum, prop) => {
+      const price = parseFloat(prop.price.replace(/[^\d]/g, ''));
+      return sum + price;
+    }, 0);
+    
+    const monthlyRevenue = `₦${(totalRevenue / 1000000).toFixed(1)}M`;
 
     return {
       totalProperties: properties.length,
-      pendingInquiries: 12, // Mock data
+      pendingInquiries: 0, // Removed - not needed
       totalTestimonials: testimonials.length,
-      adminUser: users.filter(u => u.status === 'Active').length,
-      propertiesSold: properties.filter(p => p.status === 'Sold').length,
-      monthlyRevenue: '₦2.1B'
+      adminUser: 0, // Removed - not needed
+      propertiesSold: soldProperties.length,
+      monthlyRevenue
     };
   }
 

@@ -69,13 +69,6 @@ export default function Dashboard() {
       color: 'text-green-500'
     },
     {
-      title: 'Pending Inquiries',
-      value: stats.pendingInquiries,
-      icon: TrendingUp,
-      description: 'Awaiting response',
-      color: 'text-orange-500'
-    },
-    {
       title: 'Total Testimonials',
       value: stats.totalTestimonials,
       icon: MessageSquareText,
@@ -83,17 +76,10 @@ export default function Dashboard() {
       color: 'text-purple-500'
     },
     {
-      title: 'Admin',
-      value: stats.adminUser,
-      icon: Users,
-      description: 'Active admin',
-      color: 'text-indigo-500'
-    },
-    {
-      title: 'Monthly Revenue',
+      title: 'Total Revenue',
       value: stats.monthlyRevenue,
       icon: DollarSign,
-      description: 'Current month',
+      description: 'From sold properties',
       color: 'text-primary',
       isSpecial: true
     }
@@ -186,12 +172,10 @@ export default function Dashboard() {
                 <p className="text-sm font-medium">Add Testimonial</p>
                 <p className="text-xs text-muted-foreground">Client review</p>
               </button>
-              <button className="p-4 text-left border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors">
-                <Users className="h-5 w-5 text-primary mb-2" />
-                <p className="text-sm font-medium">Manage Users</p>
-                <p className="text-xs text-muted-foreground">Staff accounts</p>
-              </button>
-              <button className="p-4 text-left border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors">
+              <button 
+                onClick={() => window.location.href = '/admin/reports'}
+                className="p-4 text-left border border-border rounded-lg hover:bg-accent hover:text-accent-foreground transition-colors"
+              >
                 <TrendingUp className="h-5 w-5 text-primary mb-2" />
                 <p className="text-sm font-medium">View Reports</p>
                 <p className="text-xs text-muted-foreground">Analytics</p>

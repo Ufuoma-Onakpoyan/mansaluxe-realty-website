@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { propertiesService, Property } from '@/lib/properties-service';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Edit, Trash2, Building2, MapPin, Bed, Bath, Square, Upload, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Building2, MapPin, Bed, Bath, Square, Upload, X, Video } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Properties() {
@@ -18,6 +18,7 @@ export default function Properties() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedVideos, setUploadedVideos] = useState<string[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -89,6 +90,7 @@ export default function Properties() {
     });
     setEditingProperty(null);
     setUploadedImages([]);
+    setUploadedVideos([]);
   };
 
   const openModal = (property?: Property) => {
@@ -113,6 +115,16 @@ export default function Properties() {
         floorPlanImages: property.floorPlanImages || []
       });
       setUploadedImages(property.images || []);
+      // Separate videos from images (videos typically have video file extensions or are hosted on video platforms)
+      const videos = (property.images || []).filter(url => 
+        url.includes('.mp4') || url.includes('.mov') || url.includes('.avi') || 
+        url.includes('youtube.') || url.includes('vimeo.') || url.includes('video')
+      );
+      const images = (property.images || []).filter(url => 
+        !videos.includes(url)
+      );
+      setUploadedImages(images);
+      setUploadedVideos(videos);
     } else {
       resetForm();
     }
@@ -146,7 +158,9 @@ export default function Properties() {
 
       const updatedImages = [...uploadedImages, ...newImages];
       setUploadedImages(updatedImages);
-      setFormData({ ...formData, images: updatedImages });
+      // Combine images and videos for storage
+      const allMedia = [...updatedImages, ...uploadedVideos];
+      setFormData({ ...formData, images: allMedia });
 
       toast({
         title: "Success",
@@ -167,16 +181,83 @@ export default function Properties() {
   const removeImage = (index: number) => {
     const updatedImages = uploadedImages.filter((_, i) => i !== index);
     setUploadedImages(updatedImages);
-    setFormData({ ...formData, images: updatedImages });
+    const allMedia = [...updatedImages, ...uploadedVideos];
+    setFormData({ ...formData, images: allMedia });
+  };
+
+  const handleVideoUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    
+    // Check if at least one image is uploaded first
+    if (uploadedImages.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please upload at least one image before adding videos",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      const newVideos: string[] = [];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `video-${Date.now()}-${Math.random()}.${fileExt}`;
+
+        const { data, error } = await supabase.storage
+          .from('property-images')
+          .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('property-images')
+          .getPublicUrl(fileName);
+
+        newVideos.push(publicUrl);
+      }
+
+      const updatedVideos = [...uploadedVideos, ...newVideos];
+      setUploadedVideos(updatedVideos);
+      // Combine images and videos for storage
+      const allMedia = [...uploadedImages, ...updatedVideos];
+      setFormData({ ...formData, images: allMedia });
+
+      toast({
+        title: "Success",
+        description: `${newVideos.length} video(s) uploaded successfully`,
+      });
+    } catch (error) {
+      console.error('Video upload error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload videos",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeVideo = (index: number) => {
+    const updatedVideos = uploadedVideos.filter((_, i) => i !== index);
+    setUploadedVideos(updatedVideos);
+    const allMedia = [...uploadedImages, ...updatedVideos];
+    setFormData({ ...formData, images: allMedia });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
+      const allMedia = [...uploadedImages, ...uploadedVideos].filter(item => item.trim() !== '');
       const propertyData = {
         ...formData,
-        images: uploadedImages.filter(img => img.trim() !== '')
+        images: allMedia
       };
 
       if (editingProperty) {
@@ -435,6 +516,61 @@ export default function Properties() {
                     
                     {isUploading && (
                       <p className="text-sm text-muted-foreground">Uploading images...</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Video Upload Section */}
+                <div className="col-span-2">
+                  <Label>Property Videos</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Videos can only be uploaded after adding at least one image
+                  </p>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center w-full">
+                      <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-lg cursor-pointer ${uploadedImages.length === 0 ? 'bg-muted/30 opacity-50 cursor-not-allowed' : 'bg-muted/50 hover:bg-muted'}`}>
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Video className="w-8 h-8 mb-4 text-muted-foreground" />
+                          <p className="mb-2 text-sm text-muted-foreground">
+                            <span className="font-semibold">Click to upload</span> property videos
+                          </p>
+                          <p className="text-xs text-muted-foreground">MP4, MOV, AVI up to 100MB each</p>
+                        </div>
+                        <input
+                          type="file"
+                          className="hidden"
+                          multiple
+                          accept="video/*"
+                          onChange={(e) => handleVideoUpload(e.target.files)}
+                          disabled={isUploading || uploadedImages.length === 0}
+                        />
+                      </label>
+                    </div>
+                    
+                    {uploadedVideos.length > 0 && (
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {uploadedVideos.map((video, index) => (
+                          <div key={index} className="relative group">
+                            <video
+                              src={video}
+                              className="w-full h-24 object-cover rounded-lg border"
+                              controls
+                              preload="metadata"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeVideo(index)}
+                              className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {isUploading && uploadedVideos.length > 0 && (
+                      <p className="text-sm text-muted-foreground">Uploading videos...</p>
                     )}
                   </div>
                 </div>

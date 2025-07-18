@@ -14,6 +14,7 @@ import Properties from "@/pages/admin/Properties";
 import Testimonials from "@/pages/admin/Testimonials";
 import Users from "@/pages/admin/Users";
 import Settings from "@/pages/admin/Settings";
+import Reports from "@/pages/admin/Reports";
 
 const queryClient = new QueryClient();
 
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="properties" element={<Properties />} />
               <Route path="testimonials" element={<Testimonials />} />
               <Route path="users" element={<Users />} />
+              <Route path="reports" element={<Reports />} />
               <Route path="settings" element={<Settings />} />
             </Route>
             
