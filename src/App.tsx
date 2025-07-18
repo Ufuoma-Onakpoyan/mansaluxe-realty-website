@@ -25,8 +25,8 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Public routes */}
-            <Route path="/" element={<Index />} />
+            {/* Redirect root to admin login */}
+            <Route path="/" element={<Login />} />
             
             {/* Admin routes */}
             <Route path="/admin/login" element={<Login />} />
