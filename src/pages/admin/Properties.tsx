@@ -45,6 +45,11 @@ export default function Properties() {
     loadProperties();
   }, []);
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const loadProperties = async () => {
     try {
       const data = await propertiesService.getProperties();
@@ -238,11 +243,6 @@ export default function Properties() {
       </div>
     );
   }
-
-  // Scroll to top when component mounts or properties change
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     <div className="p-6 space-y-6">
