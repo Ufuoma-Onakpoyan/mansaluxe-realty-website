@@ -48,7 +48,9 @@ export default function Properties() {
   const loadProperties = async () => {
     try {
       const data = await propertiesService.getProperties();
-      setProperties(data);
+      // Sort properties alphabetically by title
+      const sortedData = data.sort((a, b) => a.title.localeCompare(b.title));
+      setProperties(sortedData);
     } catch (error) {
       console.error('Failed to load properties:', error);
       toast({
@@ -236,6 +238,11 @@ export default function Properties() {
       </div>
     );
   }
+
+  // Scroll to top when component mounts or properties change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <div className="p-6 space-y-6">
