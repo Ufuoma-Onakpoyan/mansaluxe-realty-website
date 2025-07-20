@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { adminSupabase } from '@/integrations/supabase/admin-client';
 
 export interface Property {
   id: string;
@@ -54,7 +54,7 @@ export interface CreatePropertyData {
 
 export const propertiesService = {
   async getProperties(): Promise<Property[]> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('properties')
       .select('*')
       .order('created_at', { ascending: false });
@@ -78,7 +78,7 @@ export const propertiesService = {
   },
 
   async getProperty(id: string): Promise<Property | null> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('properties')
       .select('*')
       .eq('id', id)
@@ -130,7 +130,7 @@ export const propertiesService = {
       } : null
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('properties')
       .insert(insertData)
       .select()
@@ -185,7 +185,7 @@ export const propertiesService = {
       };
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('properties')
       .update(updateData)
       .eq('id', id)
@@ -210,7 +210,7 @@ export const propertiesService = {
   },
 
   async deleteProperty(id: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await adminSupabase
       .from('properties')
       .delete()
       .eq('id', id);
