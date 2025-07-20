@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,7 +40,6 @@ export default function Login() {
         return;
       }
 
-      // Simple login - ignoring 2FA for now
       await login(email, password);
       
       toast({
@@ -84,7 +84,7 @@ export default function Login() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@mansaluxerealty.com"
+                  placeholder="onakpoyanufuoma@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -118,12 +118,13 @@ export default function Login() {
             </Button>
           </form>
 
-          {/* Development Helper */}
+          {/* Login Credentials Helper */}
           <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-xs text-muted-foreground mb-2">Development Mode:</p>
-            <p className="text-xs text-muted-foreground">
-              Use any email and password to login (placeholder authentication)
-            </p>
+            <p className="text-sm font-medium text-foreground mb-2">Admin Login Credentials:</p>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <p><strong>Email:</strong> onakpoyanufuoma@gmail.com</p>
+              <p><strong>Password:</strong> MRDGN123!@#</p>
+            </div>
           </div>
         </CardContent>
       </Card>
