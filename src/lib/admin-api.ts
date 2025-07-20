@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { adminSupabase } from '@/integrations/supabase/admin-client';
 
 interface Property {
   id: string;
@@ -232,7 +233,7 @@ class AdminAPI {
 
   // Testimonial methods
   async getTestimonials(): Promise<Testimonial[]> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('testimonials')
       .select('*')
       .order('display_order', { ascending: true });
@@ -253,7 +254,7 @@ class AdminAPI {
   }
 
   async createTestimonial(testimonial: Omit<Testimonial, 'id' | 'created_at' | 'updated_at'>): Promise<Testimonial> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('testimonials')
       .insert(testimonial)
       .select()
@@ -264,7 +265,7 @@ class AdminAPI {
   }
 
   async updateTestimonial(id: string, updates: Partial<Testimonial>): Promise<Testimonial> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('testimonials')
       .update(updates)
       .eq('id', id)
@@ -286,7 +287,7 @@ class AdminAPI {
 
   // User management methods
   async getUsers(): Promise<User[]> {
-    const { data, error } = await supabase
+    const { data, error } = await adminSupabase
       .from('admin_users')
       .select('*')
       .order('created_at', { ascending: false });

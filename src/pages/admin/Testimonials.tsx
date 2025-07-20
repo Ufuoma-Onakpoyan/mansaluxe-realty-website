@@ -109,7 +109,7 @@ export default function Testimonials() {
           photo: formData.photo,
           quote: formData.quote,
           rating: formData.rating,
-          property_id: formData.property,
+          property_id: formData.property || null, // Send null instead of empty string
           published: formData.published,
           display_order: formData.display_order,
         });
@@ -125,7 +125,7 @@ export default function Testimonials() {
           photo: formData.photo,
           quote: formData.quote,
           rating: formData.rating,
-          property_id: formData.property,
+          property_id: formData.property || null, // Send null instead of empty string
           published: formData.published,
           display_order: formData.display_order,
         });
