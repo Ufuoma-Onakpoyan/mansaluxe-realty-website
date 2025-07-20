@@ -36,7 +36,7 @@ export function AdminNavbar() {
         <div className="flex justify-between h-16">
           {/* Logo and Brand */}
           <div className="flex items-center">
-            <Link to="/admin/properties" className="flex items-center space-x-2">
+            <Link to="/" className="flex items-center space-x-2">
               <img 
                 src="/lovable-uploads/d7dc5cc8-9f13-460e-9a16-e8567e5fc867.png" 
                 alt="Mansa Luxe Realty Logo" 

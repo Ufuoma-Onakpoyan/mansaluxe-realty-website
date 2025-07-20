@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminAPI, Testimonial } from '@/lib/admin-api';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -151,7 +152,13 @@ export default function Testimonials() {
     if (!confirm('Are you sure you want to delete this testimonial?')) return;
 
     try {
-      await adminAPI.deleteTestimonial(id);
+      const { error } = await supabase
+        .from('testimonials')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
       toast({
         title: "Success",
         description: "Testimonial deleted successfully",

@@ -291,7 +291,13 @@ export default function Properties() {
     if (!confirm('Are you sure you want to delete this property?')) return;
 
     try {
-      await propertiesService.deleteProperty(id);
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
       toast({
         title: "Success",
         description: "Property deleted successfully",
