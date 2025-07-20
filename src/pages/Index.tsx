@@ -47,7 +47,6 @@ const Index = () => {
       const { data: propertiesData } = await supabase
         .from('properties')
         .select('*')
-        .eq('status', 'available')
         .limit(6);
 
       // Load testimonials
