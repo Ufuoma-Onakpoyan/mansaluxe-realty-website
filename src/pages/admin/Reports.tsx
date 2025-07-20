@@ -27,7 +27,7 @@ export default function Reports() {
 
         // Process property types
         const typeCount = properties.reduce((acc, prop) => {
-          acc[prop.type] = (acc[prop.type] || 0) + 1;
+          acc[prop.property_type] = (acc[prop.property_type] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
 
@@ -48,7 +48,7 @@ export default function Reports() {
         const priceRangeData = priceRanges.map(range => ({
           range: range.label,
           count: properties.filter(prop => {
-            const price = parseFloat(prop.price.replace(/[^\d]/g, ''));
+            const price = prop.price;
             return price >= range.min && price < range.max;
           }).length
         }));
@@ -76,7 +76,8 @@ export default function Reports() {
 
         // Process testimonial ratings
         const ratingCount = testimonials.reduce((acc, test) => {
-          acc[test.rating] = (acc[test.rating] || 0) + 1;
+          const rating = test.rating || 5;
+          acc[rating] = (acc[rating] || 0) + 1;
           return acc;
         }, {} as Record<number, number>);
 
@@ -134,11 +135,11 @@ export default function Reports() {
   }
 
   const totalRevenue = data.properties
-    .filter(p => p.status === 'Sold')
-    .reduce((sum, prop) => sum + parseFloat(prop.price.replace(/[^\d]/g, '')), 0);
+    .filter(p => p.status === 'sold')
+    .reduce((sum, prop) => sum + prop.price, 0);
 
   const averageRating = data.testimonials.length > 0 
-    ? (data.testimonials.reduce((sum, t) => sum + t.rating, 0) / data.testimonials.length).toFixed(1)
+    ? (data.testimonials.reduce((sum, t) => sum + (t.rating || 5), 0) / data.testimonials.length).toFixed(1)
     : '0';
 
   return (
@@ -174,7 +175,7 @@ export default function Reports() {
               <div>
                 <p className="text-sm text-muted-foreground">Properties Sold</p>
                 <p className="text-2xl font-bold text-foreground">
-                  {data.properties.filter(p => p.status === 'Sold').length}
+                  {data.properties.filter(p => p.status === 'sold').length}
                 </p>
               </div>
             </div>

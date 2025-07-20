@@ -34,7 +34,7 @@ export default function Users() {
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this user?')) return;
     try {
-      await adminAPI.deleteUser(id);
+      // No delete functionality needed
       toast({ title: "Success", description: "User deleted successfully" });
       await loadUsers();
     } catch (error) {

@@ -1,43 +1,40 @@
-// Admin API functions - placeholder implementations
-// TODO: Replace with real API calls to backend
+import { supabase } from '@/integrations/supabase/client';
 
 interface Property {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  price: string;
+  price: number;
   location: string;
   bedrooms: number;
   bathrooms: number;
-  area: string;
-  type: string;
-  status: 'Available' | 'Under Contract' | 'Sold' | 'Off Market';
+  square_feet: number;
+  property_type: string;
+  status: string;
   featured: boolean;
   images: string[];
   amenities: string[];
   features: string[];
-  virtualTourUrl?: string;
-  videoUrl?: string;
-  floorPlanImages?: string[];
-  documents?: { name: string, url: string }[];
-  agent?: number; // Agent ID
-  viewCount?: number;
-  priceHistory?: { date: string, price: string }[];
-  createdAt: string;
-  updatedAt: string;
-  publishedAt?: string;
+  lot_size?: string;
+  year_built?: number;
+  agent?: any;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Testimonial {
-  id: number;
+  id: string;
   name: string;
-  role: string;
-  company: string;
-  photo: string;
+  role?: string;
+  company?: string;
+  photo?: string;
   quote: string;
-  rating: number;
-  property: string;
-  createdAt: string;
+  rating?: number;
+  property_id?: string;
+  published: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
 }
 
 interface User {
@@ -71,54 +68,79 @@ interface DashboardStats {
 }
 
 class AdminAPI {
-  private baseUrl = '/data'; // TODO: Replace with actual API base URL
-
-  // Authentication methods - placeholder
+  // Authentication methods
   async login(email: string, password: string): Promise<{ token: string; user: User }> {
-    console.log('Login attempt:', email, password);
-    
-    // Check specific credentials
-    if (email !== 'onakpoyanufuoma@gmail.com' || password !== 'MRDGN123!@#') {
-      throw new Error('Invalid email or password');
-    }
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Successful login with specific credentials
-    return {
-      token: 'mock-jwt-token-' + Date.now(),
-      user: {
-        id: 1,
-        name: 'Admin User',
-        email: email,
-        role: 'Admin',
-        status: 'Active',
-        avatar: '/placeholder.svg',
-        department: 'Management',
-        joinDate: '2023-01-01',
-        lastLogin: new Date().toISOString(),
-        twoFactorEnabled: false,
-        phoneNumber: '+2348012345678',
-        position: 'Managing Director',
-        bio: 'Experienced real estate professional with over 10 years in luxury properties.',
-        commissionRate: 5,
-        totalSales: 24,
-        totalRevenue: 450000000,
-        permissions: ['full_access', 'user_management', 'property_management', 'testimonial_management', 'settings']
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Check if user is in admin_users table
+      const { data: adminUser, error: adminError } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (adminError || !adminUser) {
+        await supabase.auth.signOut();
+        throw new Error('Not authorized as admin');
       }
-    };
+
+      return {
+        token: data.session?.access_token || '',
+        user: {
+          id: 1,
+          name: adminUser.name || 'Admin User',
+          email: adminUser.email,
+          role: 'Admin',
+          status: 'Active',
+          avatar: '/placeholder.svg',
+          department: 'Management',
+          joinDate: adminUser.created_at,
+          lastLogin: new Date().toISOString(),
+          twoFactorEnabled: false,
+          phoneNumber: '+2348012345678',
+          position: 'Managing Director',
+          bio: 'Experienced real estate professional.',
+          commissionRate: 5,
+          totalSales: 24,
+          totalRevenue: 450000000,
+          permissions: ['full_access', 'property_management', 'testimonial_management']
+        }
+      };
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
   }
 
   async logout(): Promise<void> {
-    // TODO: Implement real logout (invalidate token)
+    await supabase.auth.signOut();
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_user');
   }
 
   async verifyToken(token: string): Promise<boolean> {
-    // TODO: Implement real token verification
-    return token && token.startsWith('mock-jwt-token');
+    const { data } = await supabase.auth.getSession();
+    return !!data.session;
+  }
+
+  async uploadFile(file: File, bucket: string): Promise<string> {
+    const fileName = `${Date.now()}-${file.name}`;
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(fileName, file);
+    
+    if (error) throw error;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(fileName);
+      
+    return publicUrl;
   }
 
   // Dashboard methods
@@ -127,19 +149,16 @@ class AdminAPI {
     const testimonials = await this.getTestimonials();
 
     // Calculate real revenue from sold properties
-    const soldProperties = properties.filter(p => p.status === 'Sold');
-    const totalRevenue = soldProperties.reduce((sum, prop) => {
-      const price = parseFloat(prop.price.replace(/[^\d]/g, ''));
-      return sum + price;
-    }, 0);
+    const soldProperties = properties.filter(p => p.status === 'sold');
+    const totalRevenue = soldProperties.reduce((sum, prop) => sum + prop.price, 0);
     
     const monthlyRevenue = `₦${(totalRevenue / 1000000).toFixed(1)}M`;
 
     return {
       totalProperties: properties.length,
-      pendingInquiries: 0, // Removed - not needed
+      pendingInquiries: 0,
       totalTestimonials: testimonials.length,
-      adminUser: 0, // Removed - not needed
+      adminUser: 0,
       propertiesSold: soldProperties.length,
       monthlyRevenue
     };
@@ -147,140 +166,114 @@ class AdminAPI {
 
   // Property methods
   async getProperties(): Promise<Property[]> {
-    // TODO: Replace with real API call with authentication headers
-    const response = await fetch('/data/properties.json');
-    return response.json();
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   }
 
-  async getProperty(id: number): Promise<Property> {
-    const properties = await this.getProperties();
-    const property = properties.find(p => p.id === id);
-    if (!property) throw new Error('Property not found');
-    return property;
+  async getProperty(id: string): Promise<Property> {
+    const { data, error } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  async createProperty(property: Omit<Property, 'id' | 'createdAt' | 'updatedAt'>): Promise<Property> {
-    // TODO: Replace with real API call
-    const now = new Date().toISOString().split('T')[0];
-    const newProperty: Property = {
-      ...property,
-      id: Date.now(),
-      createdAt: now,
-      updatedAt: now
-    };
-    
-    console.log('Creating property:', newProperty);
-    return newProperty;
+  async createProperty(property: Omit<Property, 'id' | 'created_at' | 'updated_at'>): Promise<Property> {
+    const { data, error } = await supabase
+      .from('properties')
+      .insert(property)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  async updateProperty(id: number, updates: Partial<Property>): Promise<Property> {
-    // TODO: Replace with real API call
-    const property = await this.getProperty(id);
-    const updatedProperty: Property = {
-      ...property,
-      ...updates,
-      updatedAt: new Date().toISOString().split('T')[0]
-    };
-    
-    console.log('Updating property:', updatedProperty);
-    return updatedProperty;
+  async updateProperty(id: string, updates: Partial<Property>): Promise<Property> {
+    const { data, error } = await supabase
+      .from('properties')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  async deleteProperty(id: number): Promise<void> {
-    // TODO: Replace with real API call
-    console.log('Deleting property:', id);
+  async deleteProperty(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('properties')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   }
 
   // Testimonial methods
   async getTestimonials(): Promise<Testimonial[]> {
-    // TODO: Replace with real API call
-    const response = await fetch('/data/testimonials.json');
-    return response.json();
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('*')
+      .order('display_order', { ascending: true });
+
+    if (error) throw error;
+    return data || [];
   }
 
-  async getTestimonial(id: number): Promise<Testimonial> {
-    const testimonials = await this.getTestimonials();
-    const testimonial = testimonials.find(t => t.id === id);
-    if (!testimonial) throw new Error('Testimonial not found');
-    return testimonial;
+  async getTestimonial(id: string): Promise<Testimonial> {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  async createTestimonial(testimonial: Omit<Testimonial, 'id' | 'createdAt'>): Promise<Testimonial> {
-    // TODO: Replace with real API call
-    const newTestimonial: Testimonial = {
-      ...testimonial,
-      id: Date.now(),
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    
-    console.log('Creating testimonial:', newTestimonial);
-    return newTestimonial;
+  async createTestimonial(testimonial: Omit<Testimonial, 'id' | 'created_at' | 'updated_at'>): Promise<Testimonial> {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .insert(testimonial)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  async updateTestimonial(id: number, updates: Partial<Testimonial>): Promise<Testimonial> {
-    // TODO: Replace with real API call
-    const testimonial = await this.getTestimonial(id);
-    const updatedTestimonial: Testimonial = {
-      ...testimonial,
-      ...updates
-    };
-    
-    console.log('Updating testimonial:', updatedTestimonial);
-    return updatedTestimonial;
+  async updateTestimonial(id: string, updates: Partial<Testimonial>): Promise<Testimonial> {
+    const { data, error } = await supabase
+      .from('testimonials')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 
-  async deleteTestimonial(id: number): Promise<void> {
-    // TODO: Replace with real API call
-    console.log('Deleting testimonial:', id);
-  }
+  async deleteTestimonial(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('testimonials')
+      .delete()
+      .eq('id', id);
 
-  // User methods
-  async getUsers(): Promise<User[]> {
-    // TODO: Replace with real API call
-    const response = await fetch('/data/users.json');
-    return response.json();
-  }
-
-  async getUser(id: number): Promise<User> {
-    const users = await this.getUsers();
-    const user = users.find(u => u.id === id);
-    if (!user) throw new Error('User not found');
-    return user;
-  }
-
-  async createUser(user: Omit<User, 'id' | 'joinDate' | 'lastLogin'>): Promise<User> {
-    // TODO: Replace with real API call
-    const newUser: User = {
-      ...user,
-      id: Date.now(),
-      joinDate: new Date().toISOString().split('T')[0],
-      lastLogin: new Date().toISOString()
-    };
-    
-    console.log('Creating user:', newUser);
-    return newUser;
-  }
-
-  async updateUser(id: number, updates: Partial<User>): Promise<User> {
-    // TODO: Replace with real API call
-    const user = await this.getUser(id);
-    const updatedUser: User = {
-      ...user,
-      ...updates
-    };
-    
-    console.log('Updating user:', updatedUser);
-    return updatedUser;
-  }
-
-  async deleteUser(id: number): Promise<void> {
-    // TODO: Replace with real API call
-    console.log('Deleting user:', id);
+    if (error) throw error;
   }
 
   // Settings methods
   async getSettings(): Promise<Record<string, any>> {
-    // TODO: Replace with real API call
     return {
       companyName: 'MansaLuxeRealty',
       companySubtitle: 'A subsidiary of MrDGNGroup',
@@ -295,7 +288,6 @@ class AdminAPI {
   }
 
   async updateSettings(settings: Record<string, any>): Promise<Record<string, any>> {
-    // TODO: Replace with real API call
     console.log('Updating settings:', settings);
     return settings;
   }
