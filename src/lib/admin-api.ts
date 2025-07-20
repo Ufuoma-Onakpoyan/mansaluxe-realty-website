@@ -272,6 +272,36 @@ class AdminAPI {
     if (error) throw error;
   }
 
+  // User management methods
+  async getUsers(): Promise<User[]> {
+    const { data, error } = await supabase
+      .from('admin_users')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map(user => ({
+      id: parseInt(user.id.slice(-8), 16), // Convert UUID to number for UI
+      name: user.name || 'Admin User',
+      email: user.email,
+      role: 'Admin' as const,
+      status: 'Active' as const,
+      avatar: '/placeholder.svg',
+      department: 'Management',
+      joinDate: user.created_at,
+      lastLogin: new Date().toISOString(),
+      twoFactorEnabled: false,
+      phoneNumber: '+2348012345678',
+      position: user.role === 'super_admin' ? 'Super Admin' : 'Editor',
+      bio: 'Experienced real estate professional.',
+      commissionRate: 5,
+      totalSales: 24,
+      totalRevenue: 450000000,
+      permissions: ['full_access', 'property_management', 'testimonial_management']
+    }));
+  }
+
   // Settings methods
   async getSettings(): Promise<Record<string, any>> {
     return {
