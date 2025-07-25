@@ -13,8 +13,9 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSignupMode, setIsSignupMode] = useState(false);
   
-  const { login, isAuthenticated, isAdmin } = useAuth();
+  const { login, signup, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -43,19 +44,28 @@ export default function Login() {
         return;
       }
 
-      await login(email, password);
-      
-      toast({
-        title: "Login Successful",
-        description: "Welcome to MansaLuxeRealty Admin Panel",
-      });
+      if (isSignupMode) {
+        await signup(email, password);
+        toast({
+          title: "Signup Successful",
+          description: "Account created! You can now login.",
+        });
+        setIsSignupMode(false);
+      } else {
+        await login(email, password);
+        
+        toast({
+          title: "Login Successful",
+          description: "Welcome to MansaLuxeRealty Admin Panel",
+        });
 
-      navigate(from, { replace: true });
+        navigate(from, { replace: true });
+      }
     } catch (error) {
       console.error('Login error:', error);
       toast({
-        title: "Login Failed",
-        description: "Invalid email or password. Please try again.",
+        title: isSignupMode ? "Signup Failed" : "Login Failed", 
+        description: error.message || "Invalid credentials",
         variant: "destructive",
       });
     } finally {
@@ -117,18 +127,37 @@ export default function Login() {
               className="w-full" 
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
+              {isSubmitting ? (isSignupMode ? 'Creating Account...' : 'Signing In...') : (isSignupMode ? 'Create Account' : 'Sign In')}
+            </Button>
+            
+            <Button 
+              type="button" 
+              variant="outline"
+              className="w-full" 
+              onClick={() => setIsSignupMode(!isSignupMode)}
+            >
+              {isSignupMode ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
             </Button>
           </form>
 
           {/* Login Credentials Helper */}
           <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-sm font-medium text-foreground mb-2">Admin Login Credentials:</p>
+            <p className="text-sm font-medium text-foreground mb-2">{isSignupMode ? 'Steps to Create Admin:' : 'Admin Login Steps:'}</p>
             <div className="space-y-1 text-sm text-muted-foreground">
-              <p><strong>Super Admin:</strong></p>
-              <p>Email: admin@mansaluxerealty.com | Password: admin123</p>
-              <p><strong>Editor:</strong></p>
-              <p>Email: editor@mansaluxerealty.com | Password: editor123</p>
+              {isSignupMode ? (
+                <>
+                  <p>1. Create account with email: onakpoyanufuoma@gmail.com</p>
+                  <p>2. Use any password you want</p>
+                  <p>3. Then switch to "Sign In" mode</p>
+                  <p>4. Login with the same credentials</p>
+                </>
+              ) : (
+                <>
+                  <p><strong>Use existing admin email:</strong></p>
+                  <p>onakpoyanufuoma@gmail.com</p>
+                  <p>(Create this account first with Sign Up)</p>
+                </>
+              )}
             </div>
           </div>
         </CardContent>

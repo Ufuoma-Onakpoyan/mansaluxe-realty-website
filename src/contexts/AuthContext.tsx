@@ -15,6 +15,7 @@ interface AuthContextType {
   adminUser: AdminUser | null;
   session: Session | null;
   login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
   isAuthenticated: boolean;
@@ -113,6 +114,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signup = async (email: string, password: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`
+        }
+      });
+
+      if (error) throw error;
+
+      // Note: User will need to be added to admin_users table manually
+      // or we can create them automatically if they're in the admin_users table
+      if (data.user) {
+        console.log('User created:', data.user.email);
+      }
+    } catch (error) {
+      console.error('Signup failed:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = async () => {
     setIsLoading(true);
     try {
@@ -130,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     adminUser,
     session,
     login,
+    signup,
     logout,
     isLoading,
     isAuthenticated: !!user,
