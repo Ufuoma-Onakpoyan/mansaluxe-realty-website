@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { adminSupabase } from '@/integrations/supabase/admin-client';
 
 interface Property {
   id: string;
@@ -70,76 +69,8 @@ interface DashboardStats {
 }
 
 class AdminAPI {
-  // Authentication methods
-  async login(email: string, password: string): Promise<{ token: string; user: User }> {
-    try {
-      // Check if user exists in admin_users table with correct credentials
-      const { data: adminUser, error: adminError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', email)
-        .single();
-
-      if (adminError || !adminUser) {
-        throw new Error('Invalid email or password');
-      }
-
-      // For demo purposes, we'll accept any password for existing admin users
-      // In production, you'd want to hash and compare passwords
-      const expectedPassword = 'MRDGN123!@#';
-      if (password !== expectedPassword) {
-        throw new Error('Invalid email or password');
-      }
-
-      // Generate a simple token (in production, use proper JWT)
-      const token = btoa(`${email}:${Date.now()}`);
-
-      return {
-        token,
-        user: {
-          id: 1,
-          name: adminUser.name || 'Admin User',
-          email: adminUser.email,
-          role: 'Admin',
-          status: 'Active',
-          avatar: '/placeholder.svg',
-          department: 'Management',
-          joinDate: adminUser.created_at,
-          lastLogin: new Date().toISOString(),
-          twoFactorEnabled: false,
-          phoneNumber: '+2348012345678',
-          position: adminUser.role === 'super_admin' ? 'Super Admin' : 'Editor',
-          bio: 'Experienced real estate professional.',
-          commissionRate: 5,
-          totalSales: 24,
-          totalRevenue: 450000000,
-          permissions: ['full_access', 'property_management', 'testimonial_management']
-        }
-      };
-    } catch (error: any) {
-      throw new Error(error.message);
-    }
-  }
-
-  async logout(): Promise<void> {
-    localStorage.removeItem('admin_token');
-    localStorage.removeItem('admin_user');
-  }
-
-  async verifyToken(token: string): Promise<boolean> {
-    try {
-      // Simple token verification (decode and check if not expired)
-      const decoded = atob(token);
-      const [email, timestamp] = decoded.split(':');
-      const tokenTime = parseInt(timestamp);
-      const now = Date.now();
-      
-      // Token expires after 24 hours
-      return (now - tokenTime) < (24 * 60 * 60 * 1000);
-    } catch {
-      return false;
-    }
-  }
+  // Note: Authentication is now handled by AuthContext using real Supabase auth
+  // These old auth methods are kept for backwards compatibility but deprecated
 
   async uploadFile(file: File, bucket: string): Promise<string> {
     const fileName = `${Date.now()}-${file.name}`;
@@ -233,7 +164,7 @@ class AdminAPI {
 
   // Testimonial methods
   async getTestimonials(): Promise<Testimonial[]> {
-    const { data, error } = await adminSupabase
+    const { data, error } = await supabase
       .from('testimonials')
       .select('*')
       .order('display_order', { ascending: true });
@@ -254,7 +185,7 @@ class AdminAPI {
   }
 
   async createTestimonial(testimonial: Omit<Testimonial, 'id' | 'created_at' | 'updated_at'>): Promise<Testimonial> {
-    const { data, error } = await adminSupabase
+    const { data, error } = await supabase
       .from('testimonials')
       .insert(testimonial)
       .select()
@@ -265,7 +196,7 @@ class AdminAPI {
   }
 
   async updateTestimonial(id: string, updates: Partial<Testimonial>): Promise<Testimonial> {
-    const { data, error } = await adminSupabase
+    const { data, error } = await supabase
       .from('testimonials')
       .update(updates)
       .eq('id', id)
@@ -287,7 +218,7 @@ class AdminAPI {
 
   // User management methods
   async getUsers(): Promise<User[]> {
-    const { data, error } = await adminSupabase
+    const { data, error } = await supabase
       .from('admin_users')
       .select('*')
       .order('created_at', { ascending: false });

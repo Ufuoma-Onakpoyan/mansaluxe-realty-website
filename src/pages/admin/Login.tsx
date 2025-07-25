@@ -74,76 +74,85 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <Crown className="h-12 w-12 text-primary" />
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-8">
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader className="text-center space-y-4">
+          <div className="flex justify-center">
+            <img 
+              src="/lovable-uploads/d7dc5cc8-9f13-460e-9a16-e8567e5fc867.png" 
+              alt="Mansa Luxe Realty Logo" 
+              className="h-12 w-auto sm:h-16"
+            />
           </div>
-          <CardTitle className="text-2xl font-serif">
-            MansaLuxeRealty
+          <CardTitle className="text-xl sm:text-2xl font-serif">
+            {isSignupMode ? 'Create Admin Account' : 'Admin Login'}
           </CardTitle>
-          <CardDescription>
-            Admin Panel - Please sign in to continue
+          <CardDescription className="text-sm sm:text-base">
+            {isSignupMode ? 'Set up your administrator account' : 'Access your admin dashboard'}
           </CardDescription>
         </CardHeader>
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="onakpoyanufuoma@gmail.com"
+                  placeholder="admin@mansaluxerealty.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-11"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-11"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
             </div>
 
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (isSignupMode ? 'Creating Account...' : 'Signing In...') : (isSignupMode ? 'Create Account' : 'Sign In')}
-            </Button>
-            
-            <Button 
-              type="button" 
-              variant="outline"
-              className="w-full" 
-              onClick={() => setIsSignupMode(!isSignupMode)}
-            >
-              {isSignupMode ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-            </Button>
+            <div className="space-y-3">
+              <Button 
+                type="submit" 
+                className="w-full h-11 text-sm sm:text-base" 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (isSignupMode ? 'Creating Account...' : 'Signing In...') : (isSignupMode ? 'Create Account' : 'Sign In')}
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline"
+                className="w-full h-11 text-sm" 
+                onClick={() => setIsSignupMode(!isSignupMode)}
+                disabled={isSubmitting}
+              >
+                {isSignupMode ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+              </Button>
+            </div>
           </form>
 
           {/* Login Credentials Helper */}
-          <div className="mt-6 p-4 bg-muted rounded-lg">
-            <p className="text-sm font-medium text-foreground mb-2">{isSignupMode ? 'Steps to Create Admin:' : 'Admin Login Steps:'}</p>
-            <div className="space-y-1 text-sm text-muted-foreground">
+          <div className="mt-6 p-3 sm:p-4 bg-muted rounded-lg">
+            <p className="text-xs sm:text-sm font-medium text-foreground mb-2">{isSignupMode ? 'Steps to Create Admin:' : 'Admin Login Steps:'}</p>
+            <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
               {isSignupMode ? (
                 <>
                   <p>1. Create account with email: onakpoyanufuoma@gmail.com</p>

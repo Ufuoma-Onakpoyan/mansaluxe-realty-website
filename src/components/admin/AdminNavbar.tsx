@@ -40,9 +40,9 @@ export function AdminNavbar() {
               <img 
                 src="/lovable-uploads/d7dc5cc8-9f13-460e-9a16-e8567e5fc867.png" 
                 alt="Mansa Luxe Realty Logo" 
-                className="h-10 w-auto"
+                className="h-8 w-auto sm:h-10"
               />
-              <div className="flex flex-col">
+              <div className="hidden sm:flex flex-col">
                 <span className="text-xs text-orange-300">
                   Admin Panel
                 </span>
@@ -74,11 +74,11 @@ export function AdminNavbar() {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {user && adminUser && (
               <div className="hidden sm:flex items-center space-x-2 text-orange-200">
-                <span className="text-sm">{adminUser.name || user.email}</span>
-                <span className="text-xs bg-orange-900/30 text-orange-300 px-2 py-1 rounded">
+                <span className="text-xs sm:text-sm truncate max-w-32">{adminUser.name || user.email}</span>
+                <span className="text-xs bg-orange-900/30 text-orange-300 px-2 py-1 rounded whitespace-nowrap">
                   {adminUser.role === 'super_admin' ? 'Super Admin' : 'Admin'}
                 </span>
               </div>
@@ -88,7 +88,7 @@ export function AdminNavbar() {
               onClick={handleLogout}
               variant="ghost"
               size="sm"
-              className="text-orange-200 hover:text-orange-300 hover:bg-orange-900/20"
+              className="text-orange-200 hover:text-orange-300 hover:bg-orange-900/20 px-2 sm:px-3"
             >
               <LogOut className="h-4 w-4" />
               <span className="hidden sm:ml-2 sm:inline">Logout</span>

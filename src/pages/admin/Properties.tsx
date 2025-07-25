@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { propertiesService, Property } from '@/lib/properties-service';
-import { adminSupabase } from '@/integrations/supabase/admin-client';
+import { supabase } from '@/integrations/supabase/client';
 import { Plus, Edit, Trash2, Building2, MapPin, Bed, Bath, Square, Upload, X, Video } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -143,13 +143,13 @@ export default function Properties() {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
 
-        const { data, error } = await adminSupabase.storage
+        const { data, error } = await supabase.storage
           .from('property-images')
           .upload(fileName, file);
 
         if (error) throw error;
 
-        const { data: { publicUrl } } = adminSupabase.storage
+        const { data: { publicUrl } } = supabase.storage
           .from('property-images')
           .getPublicUrl(fileName);
 
@@ -208,13 +208,13 @@ export default function Properties() {
         const fileExt = file.name.split('.').pop();
         const fileName = `video-${Date.now()}-${Math.random()}.${fileExt}`;
 
-        const { data, error } = await adminSupabase.storage
+        const { data, error } = await supabase.storage
           .from('property-images')
           .upload(fileName, file);
 
         if (error) throw error;
 
-        const { data: { publicUrl } } = adminSupabase.storage
+        const { data: { publicUrl } } = supabase.storage
           .from('property-images')
           .getPublicUrl(fileName);
 
@@ -291,7 +291,7 @@ export default function Properties() {
     if (!confirm('Are you sure you want to delete this property?')) return;
 
     try {
-      const { error } = await adminSupabase
+      const { error } = await supabase
         .from('properties')
         .delete()
         .eq('id', id);
