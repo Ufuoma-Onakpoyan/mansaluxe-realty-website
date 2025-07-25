@@ -37,6 +37,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data: adminData, error } = await supabase
         .rpc('get_admin_user_by_id', { check_user_id: userId });
 
+      console.log('RPC response:', { adminData, error });
+
       if (error) {
         console.error('Error calling get_admin_user_by_id:', error);
         return null;
