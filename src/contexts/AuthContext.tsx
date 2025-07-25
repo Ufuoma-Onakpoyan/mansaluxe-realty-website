@@ -32,6 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check admin role for authenticated user using security definer function
   const checkAdminRole = async (userId: string) => {
     try {
+      console.log('Checking admin role for user:', userId);
+      
       const { data: adminData, error } = await supabase
         .rpc('get_admin_user_by_id', { check_user_id: userId });
 
@@ -45,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return null;
       }
 
+      console.log('Admin role found:', adminData[0]);
       return adminData[0] as AdminUser;
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -53,65 +56,83 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+    
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
+        
+        if (!mounted) return;
+        
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
           // Check if user has admin role
           const adminData = await checkAdminRole(session.user.id);
-          setAdminUser(adminData);
+          if (mounted) {
+            setAdminUser(adminData);
+          }
         } else {
-          setAdminUser(null);
+          if (mounted) {
+            setAdminUser(null);
+          }
         }
         
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     );
 
     // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!mounted) return;
+      
+      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
         const adminData = await checkAdminRole(session.user.id);
-        setAdminUser(adminData);
+        if (mounted) {
+          setAdminUser(adminData);
+        }
       }
       
-      setIsLoading(false);
+      if (mounted) {
+        setIsLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
-    setIsLoading(true);
+    console.log('Login attempt started');
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
-
-      // Check if user has admin role
-      if (data.user) {
-        const adminData = await checkAdminRole(data.user.id);
-        if (!adminData || !['super_admin', 'editor'].includes(adminData.role)) {
-          // Sign out if user is not an admin
-          await supabase.auth.signOut();
-          throw new Error('Access denied. Admin privileges required.');
-        }
-        setAdminUser(adminData);
+      if (error) {
+        console.error('Supabase auth error:', error);
+        throw error;
       }
+
+      console.log('Auth successful, checking admin role...');
+      
+      // The onAuthStateChange listener will handle the admin role check
+      // and set loading states appropriately
     } catch (error) {
       console.error('Login failed:', error);
-      throw error;
-    } finally {
       setIsLoading(false);
+      throw error;
     }
   };
 

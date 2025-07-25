@@ -39,18 +39,17 @@ export default function Login() {
           description: "Please fill in all fields",
           variant: "destructive",
         });
-        setIsSubmitting(false);
         return;
       }
 
+      console.log('Starting login process...');
       await login(email, password);
       
-      toast({
-        title: "Login Successful",
-        description: "Welcome to MansaLuxeRealty Admin Panel",
-      });
-
-      navigate(from, { replace: true });
+      console.log('Login function completed');
+      
+      // Don't navigate here - let the useEffect handle navigation
+      // when the authentication state changes
+      
     } catch (error) {
       console.error('Login error:', error);
       toast({
