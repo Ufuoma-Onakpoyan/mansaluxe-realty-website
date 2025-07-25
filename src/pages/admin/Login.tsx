@@ -22,7 +22,9 @@ export default function Login() {
   const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
 
   useEffect(() => {
+    console.log('Login useEffect - isAuthenticated:', isAuthenticated, 'isAdmin:', isAdmin);
     if (isAuthenticated && isAdmin) {
+      console.log('Redirecting to:', from);
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, isAdmin, navigate, from]);
