@@ -26,16 +26,15 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            {/* Redirect root to admin login */}
+            {/* Routes */}
             <Route path="/" element={<Login />} />
-            
-            {/* Admin routes */}
             <Route path="/admin/login" element={<Login />} />
             <Route path="/admin" element={
               <ProtectedRoute>
                 <AdminLayout />
               </ProtectedRoute>
             }>
+              <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="properties" element={<Properties />} />
               <Route path="testimonials" element={<Testimonials />} />
