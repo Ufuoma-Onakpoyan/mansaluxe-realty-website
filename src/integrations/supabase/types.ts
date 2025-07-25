@@ -168,6 +168,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_admin_user_by_id: {
+        Args: { check_user_id: string }
+        Returns: {
+          id: string
+          email: string
+          name: string
+          role: Database["public"]["Enums"]["admin_role"]
+          user_id: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
       is_admin_user: {
         Args: { check_user_id?: string }
         Returns: boolean

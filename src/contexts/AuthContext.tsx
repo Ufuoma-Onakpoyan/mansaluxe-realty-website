@@ -30,21 +30,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Check admin role for authenticated user
+  // Check admin role for authenticated user using security definer function
   const checkAdminRole = async (userId: string) => {
     try {
       const { data: adminData, error } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
+        .rpc('get_admin_user_by_id', { check_user_id: userId });
 
-      if (error || !adminData) {
+      if (error) {
+        console.error('Error calling get_admin_user_by_id:', error);
+        return null;
+      }
+
+      if (!adminData || adminData.length === 0) {
         console.log('User is not an admin');
         return null;
       }
 
-      return adminData as AdminUser;
+      return adminData[0] as AdminUser;
     } catch (error) {
       console.error('Error checking admin role:', error);
       return null;
