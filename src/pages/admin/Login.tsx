@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,15 +14,18 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isAdmin } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    const from = location.state?.from?.pathname || '/admin/dashboard';
-    return <Navigate to={from} replace />;
-  }
+  const from = (location.state as any)?.from?.pathname || '/admin/dashboard';
+
+  useEffect(() => {
+    if (isAuthenticated && isAdmin) {
+      navigate(from, { replace: true });
+    }
+  }, [isAuthenticated, isAdmin, navigate, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +50,7 @@ export default function Login() {
         description: "Welcome to MansaLuxeRealty Admin Panel",
       });
 
-      // Navigation will be handled by the ProtectedRoute component
+      navigate(from, { replace: true });
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -122,8 +125,10 @@ export default function Login() {
           <div className="mt-6 p-4 bg-muted rounded-lg">
             <p className="text-sm font-medium text-foreground mb-2">Admin Login Credentials:</p>
             <div className="space-y-1 text-sm text-muted-foreground">
-              <p><strong>Email:</strong> onakpoyanufuoma@gmail.com</p>
-              <p><strong>Password:</strong> MRDGN123!@#</p>
+              <p><strong>Super Admin:</strong></p>
+              <p>Email: admin@mansaluxerealty.com | Password: admin123</p>
+              <p><strong>Editor:</strong></p>
+              <p>Email: editor@mansaluxerealty.com | Password: editor123</p>
             </div>
           </div>
         </CardContent>
