@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -20,13 +20,16 @@ const navigation = [
 
 export function AdminNavbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, adminUser, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
       await logout();
+      navigate('/admin/login', { replace: true });
     } catch (error) {
       console.error('Logout failed:', error);
+      navigate('/admin/login', { replace: true });
     }
   };
 
