@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/admin/ProtectedRoute";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { RootRoute } from "@/components/RootRoute";
 import Login from "@/pages/admin/Login";
 import Dashboard from "@/pages/admin/Dashboard";
 import Properties from "@/pages/admin/Properties";
@@ -27,7 +28,7 @@ const App = () => (
         <AuthProvider>
           <Routes>
             {/* Routes */}
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<RootRoute />} />
             <Route path="/admin/login" element={<Login />} />
             <Route path="/admin" element={
               <ProtectedRoute>
