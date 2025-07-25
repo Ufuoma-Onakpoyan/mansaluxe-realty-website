@@ -34,8 +34,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('Checking admin role for user:', userId);
       
-      const { data: adminData, error } = await supabase
+      // Add timeout to prevent hanging
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('RPC timeout')), 5000)
+      );
+      
+      const rpcPromise = supabase
         .rpc('get_admin_user_by_id', { check_user_id: userId });
+      
+      const { data: adminData, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
 
       console.log('RPC response:', { adminData, error });
 
@@ -71,10 +78,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Check if user has admin role
-          const adminData = await checkAdminRole(session.user.id);
-          if (mounted) {
-            setAdminUser(adminData);
+          // Check if user has admin role with timeout
+          try {
+            const adminData = await checkAdminRole(session.user.id);
+            if (mounted) {
+              setAdminUser(adminData);
+            }
+          } catch (error) {
+            console.error('Admin check failed:', error);
+            if (mounted) {
+              setAdminUser(null);
+            }
           }
         } else {
           if (mounted) {
@@ -97,9 +111,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        const adminData = await checkAdminRole(session.user.id);
-        if (mounted) {
-          setAdminUser(adminData);
+        try {
+          const adminData = await checkAdminRole(session.user.id);
+          if (mounted) {
+            setAdminUser(adminData);
+          }
+        } catch (error) {
+          console.error('Initial admin check failed:', error);
+          if (mounted) {
+            setAdminUser(null);
+          }
         }
       }
       
