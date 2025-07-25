@@ -20,7 +20,7 @@ const navigation = [
 
 export function AdminNavbar() {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, adminUser, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
@@ -75,11 +75,11 @@ export function AdminNavbar() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
-            {user && (
+            {user && adminUser && (
               <div className="hidden sm:flex items-center space-x-2 text-orange-200">
-                <span className="text-sm">{user.name}</span>
+                <span className="text-sm">{adminUser.name || user.email}</span>
                 <span className="text-xs bg-orange-900/30 text-orange-300 px-2 py-1 rounded">
-                  Admin
+                  {adminUser.role === 'super_admin' ? 'Super Admin' : 'Admin'}
                 </span>
               </div>
             )}

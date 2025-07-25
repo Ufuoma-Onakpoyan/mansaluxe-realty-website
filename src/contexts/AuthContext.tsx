@@ -1,50 +1,110 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { adminAPI, User } from '@/lib/admin-api';
+import { supabase } from '@/integrations/supabase/client';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+
+interface AdminUser {
+  id: string;
+  email: string;
+  name: string | null;
+  role: 'super_admin' | 'editor' | 'viewer';
+  created_at: string;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: SupabaseUser | null;
+  adminUser: AdminUser | null;
+  session: Session | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Check for existing token on app start
-    const token = localStorage.getItem('admin_token');
-    const savedUser = localStorage.getItem('admin_user');
-    
-    if (token && savedUser) {
-      // TODO: Verify token with backend
-      adminAPI.verifyToken(token).then(isValid => {
-        if (isValid) {
-          setUser(JSON.parse(savedUser));
-        } else {
-          localStorage.removeItem('admin_token');
-          localStorage.removeItem('admin_user');
-        }
-        setIsLoading(false);
-      });
-    } else {
-      setIsLoading(false);
+  // Check admin role for authenticated user
+  const checkAdminRole = async (userId: string) => {
+    try {
+      const { data: adminData, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error || !adminData) {
+        console.log('User is not an admin');
+        return null;
+      }
+
+      return adminData as AdminUser;
+    } catch (error) {
+      console.error('Error checking admin role:', error);
+      return null;
     }
+  };
+
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          // Check if user has admin role
+          const adminData = await checkAdminRole(session.user.id);
+          setAdminUser(adminData);
+        } else {
+          setAdminUser(null);
+        }
+        
+        setIsLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        const adminData = await checkAdminRole(session.user.id);
+        setAdminUser(adminData);
+      }
+      
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Simplified login without 2FA for now
-      const { token, user: loggedInUser } = await adminAPI.login(email, password);
-      
-      localStorage.setItem('admin_token', token);
-      localStorage.setItem('admin_user', JSON.stringify(loggedInUser));
-      setUser(loggedInUser);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      // Check if user has admin role
+      if (data.user) {
+        const adminData = await checkAdminRole(data.user.id);
+        if (!adminData || !['super_admin', 'editor'].includes(adminData.role)) {
+          // Sign out if user is not an admin
+          await supabase.auth.signOut();
+          throw new Error('Access denied. Admin privileges required.');
+        }
+        setAdminUser(adminData);
+      }
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
@@ -56,10 +116,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     setIsLoading(true);
     try {
-      await adminAPI.logout();
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('admin_user');
-      setUser(null);
+      await supabase.auth.signOut();
+      setAdminUser(null);
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {
@@ -69,10 +127,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const value = {
     user,
+    adminUser,
+    session,
     login,
     logout,
     isLoading,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    isAdmin: !!adminUser && ['super_admin', 'editor'].includes(adminUser.role)
   };
 
   return (
