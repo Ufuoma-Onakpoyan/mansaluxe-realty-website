@@ -147,8 +147,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
       setAdminUser(null);
+      // Force redirect to login page after logout
+      window.location.href = '/admin/login';
     } catch (error) {
       console.error('Logout failed:', error);
+      // Even if logout fails, redirect to login
+      window.location.href = '/admin/login';
     } finally {
       setIsLoading(false);
     }

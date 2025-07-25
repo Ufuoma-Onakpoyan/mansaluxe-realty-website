@@ -6,16 +6,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Crown, Mail, Lock } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSignupMode, setIsSignupMode] = useState(false);
   
-  const { login, signup, isAuthenticated, isAdmin } = useAuth();
+  const { login, isAuthenticated, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
@@ -44,27 +43,18 @@ export default function Login() {
         return;
       }
 
-      if (isSignupMode) {
-        await signup(email, password);
-        toast({
-          title: "Signup Successful",
-          description: "Account created! You can now login.",
-        });
-        setIsSignupMode(false);
-      } else {
-        await login(email, password);
-        
-        toast({
-          title: "Login Successful",
-          description: "Welcome to MansaLuxeRealty Admin Panel",
-        });
+      await login(email, password);
+      
+      toast({
+        title: "Login Successful",
+        description: "Welcome to MansaLuxeRealty Admin Panel",
+      });
 
-        navigate(from, { replace: true });
-      }
+      navigate(from, { replace: true });
     } catch (error) {
       console.error('Login error:', error);
       toast({
-        title: isSignupMode ? "Signup Failed" : "Login Failed", 
+        title: "Login Failed", 
         description: error.message || "Invalid credentials",
         variant: "destructive",
       });
@@ -85,10 +75,10 @@ export default function Login() {
             />
           </div>
           <CardTitle className="text-xl sm:text-2xl font-serif">
-            {isSignupMode ? 'Create Admin Account' : 'Admin Login'}
+            Admin Login
           </CardTitle>
           <CardDescription className="text-sm sm:text-base">
-            {isSignupMode ? 'Set up your administrator account' : 'Access your admin dashboard'}
+            Access your admin dashboard
           </CardDescription>
         </CardHeader>
         
@@ -128,47 +118,14 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="space-y-3">
-              <Button 
-                type="submit" 
-                className="w-full h-11 text-sm sm:text-base" 
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (isSignupMode ? 'Creating Account...' : 'Signing In...') : (isSignupMode ? 'Create Account' : 'Sign In')}
-              </Button>
-              
-              <Button 
-                type="button" 
-                variant="outline"
-                className="w-full h-11 text-sm" 
-                onClick={() => setIsSignupMode(!isSignupMode)}
-                disabled={isSubmitting}
-              >
-                {isSignupMode ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
-              </Button>
-            </div>
+            <Button 
+              type="submit" 
+              className="w-full h-11 text-sm sm:text-base" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Signing In...' : 'Sign In'}
+            </Button>
           </form>
-
-          {/* Login Credentials Helper */}
-          <div className="mt-6 p-3 sm:p-4 bg-muted rounded-lg">
-            <p className="text-xs sm:text-sm font-medium text-foreground mb-2">{isSignupMode ? 'Steps to Create Admin:' : 'Admin Login Steps:'}</p>
-            <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
-              {isSignupMode ? (
-                <>
-                  <p>1. Create account with email: onakpoyanufuoma@gmail.com</p>
-                  <p>2. Use any password you want</p>
-                  <p>3. Then switch to "Sign In" mode</p>
-                  <p>4. Login with the same credentials</p>
-                </>
-              ) : (
-                <>
-                  <p><strong>Use existing admin email:</strong></p>
-                  <p>onakpoyanufuoma@gmail.com</p>
-                  <p>(Create this account first with Sign Up)</p>
-                </>
-              )}
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
