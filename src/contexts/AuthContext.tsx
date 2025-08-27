@@ -32,8 +32,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check admin role for authenticated user using security definer function
   const checkAdminRole = async (userId: string) => {
     try {
-      const { data: adminData, error } = await supabase
+      // Add timeout to prevent infinite hanging
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 5000)
+      );
+
+      const rpcPromise = supabase
         .rpc('get_admin_user_by_id', { check_user_id: userId });
+
+      const { data: adminData, error } = await Promise.race([
+        rpcPromise,
+        timeoutPromise
+      ]) as any;
 
       if (error) {
         console.error('Error calling get_admin_user_by_id:', error);
