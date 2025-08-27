@@ -32,19 +32,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Check admin role for authenticated user using security definer function
   const checkAdminRole = async (userId: string) => {
     try {
-      console.log('Checking admin role for user:', userId);
-      
-      // Add timeout to prevent hanging
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('RPC timeout')), 5000)
-      );
-      
-      const rpcPromise = supabase
+      const { data: adminData, error } = await supabase
         .rpc('get_admin_user_by_id', { check_user_id: userId });
-      
-      const { data: adminData, error } = await Promise.race([rpcPromise, timeoutPromise]) as any;
-
-      console.log('RPC response:', { adminData, error });
 
       if (error) {
         console.error('Error calling get_admin_user_by_id:', error);
@@ -52,11 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!adminData || adminData.length === 0) {
-        console.log('User is not an admin');
         return null;
       }
 
-      console.log('Admin role found:', adminData[0]);
       return adminData[0] as AdminUser;
     } catch (error) {
       console.error('Error checking admin role:', error);
@@ -70,25 +57,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        
         if (!mounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          // Check if user has admin role with timeout
-          try {
-            const adminData = await checkAdminRole(session.user.id);
-            if (mounted) {
-              setAdminUser(adminData);
-            }
-          } catch (error) {
-            console.error('Admin check failed:', error);
-            if (mounted) {
-              setAdminUser(null);
-            }
+          // Check if user has admin role
+          const adminData = await checkAdminRole(session.user.id);
+          if (mounted) {
+            setAdminUser(adminData);
           }
         } else {
           if (mounted) {
@@ -106,21 +84,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!mounted) return;
       
-      console.log('Initial session check:', session?.user?.email);
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        try {
-          const adminData = await checkAdminRole(session.user.id);
-          if (mounted) {
-            setAdminUser(adminData);
-          }
-        } catch (error) {
-          console.error('Initial admin check failed:', error);
-          if (mounted) {
-            setAdminUser(null);
-          }
+        const adminData = await checkAdminRole(session.user.id);
+        if (mounted) {
+          setAdminUser(adminData);
         }
       }
       
@@ -136,7 +106,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    console.log('Login attempt started');
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -144,16 +113,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        console.error('Supabase auth error:', error);
         throw error;
       }
 
-      console.log('Auth successful, checking admin role...');
-      
       // The onAuthStateChange listener will handle the admin role check
       // and set loading states appropriately
     } catch (error) {
-      console.error('Login failed:', error);
       setIsLoading(false);
       throw error;
     }

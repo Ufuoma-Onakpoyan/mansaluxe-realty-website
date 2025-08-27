@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -171,17 +171,25 @@ export type Database = {
       get_admin_user_by_id: {
         Args: { check_user_id: string }
         Returns: {
-          id: string
+          created_at: string
           email: string
+          id: string
           name: string
           role: Database["public"]["Enums"]["admin_role"]
-          user_id: string
-          created_at: string
           updated_at: string
+          user_id: string
         }[]
       }
       is_admin_user: {
         Args: { check_user_id?: string }
+        Returns: boolean
+      }
+      is_current_user_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_current_user_super_admin: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }
